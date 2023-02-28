@@ -29,8 +29,8 @@ if (navigator.geolocation) {
       // console.log(position);
       const { latitude } = position.coords;
       const { longitude } = position.coords;
-      console.log(latitude, longitude);
-      console.log(`https://www.google.com/maps/@${latitude},${longitude},13z`);
+
+      // console.log(`https://www.google.com/maps/@${latitude},${longitude},13z`);
 
       const coords = [latitude, longitude];
 
@@ -41,10 +41,28 @@ if (navigator.geolocation) {
           '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
       }).addTo(map);
 
-      L.marker(coords)
-        .addTo(map)
-        .bindPopup('A pretty CSS3 popup.<br> Easily customizable.')
-        .openPopup();
+      // L.marker(coords)
+      //   .addTo(map)
+      //   .bindPopup('A pretty CSS3 popup.<br> Easily customizable.')
+      //   .openPopup();
+
+      map.on('click', function (mapEvent) {
+        const { lat, lng } = mapEvent.latlng;
+
+        L.marker([lat, lng])
+          .addTo(map)
+          .bindPopup(
+            L.popup({
+              maxWidth: 200,
+              mainWidth: 50,
+              autoClose: false,
+              closeOnClick: false,
+              className: 'running-popup',
+            })
+          )
+          .setPopupContent(`You clicked at ${lat}, ${lng}`)
+          .openPopup();
+      });
     },
     function () {
       alert('Could not get your geolocation!');
