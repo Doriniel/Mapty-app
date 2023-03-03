@@ -297,12 +297,16 @@ class App {
 
   _getLocalStorage() {
     const storageData = JSON.parse(localStorage.getItem('workouts'));
-    console.log(storageData);
 
     if (!storageData) return;
     this.#workouts = storageData;
-
     this.#workouts.forEach(work => this._renderWorkout(work));
+  }
+
+  // adding manually resetting method (public):
+  reset() {
+    localStorage.removeItem('workouts');
+    location.reload();
   }
 }
 
