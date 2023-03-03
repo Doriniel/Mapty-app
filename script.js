@@ -2,7 +2,7 @@
 
 class Workout {
   date = new Date();
-  id = Date.now().toString().split(-10);
+  id = Date.now().toString().slice(-10);
 
   constructor(coords, distance, duration) {
     this.coords = coords; // [latitude, longtitude]
@@ -69,12 +69,23 @@ const inputElevation = document.querySelector('.form__input--elevation');
 class App {
   #map;
   #mapEvent;
+  #mapZoomNumber = 13;
   #workouts = [];
 
   constructor() {
+    // getting user geolocation:
     this._getPosition();
+
+    // getting data from Local Storage if there is any:
+    this._getLocalStorage();
+
+    // adding event listeners:
     form.addEventListener('submit', this._newWorkout.bind(this));
     inputType.addEventListener('change', this._toggleElevationField);
+    containerWorkouts.addEventListener(
+      'click',
+      this._moveMarkerOnCLicks.bind(this)
+    );
   }
 
   _getPosition() {
@@ -93,7 +104,7 @@ class App {
     const { longitude } = position.coords;
     const coords = [latitude, longitude];
 
-    this.#map = L.map('map').setView(coords, 14);
+    this.#map = L.map('map').setView(coords, this.#mapZoomNumber);
 
     L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution:
@@ -178,13 +189,16 @@ class App {
 
     // Render workout on map as marker
     this._renderWorkoutMarker(workout);
-    console.log(workout);
+    // console.log(workout);
 
     // Render workout on a list
     this._renderWorkout(workout);
 
     // Hide form + clear input fields
     this._hideForm();
+
+    // Store data in a local storage:
+    this._setLocalStorage();
   }
 
   _renderWorkoutMarker(workout) {
@@ -251,6 +265,39 @@ class App {
     }
 
     form.insertAdjacentHTML('afterend', html);
+  }
+
+  _moveMarkerOnCLicks(e) {
+    // matching user interface elements (workoutElem) with data from an array of workouts (#workouts) - by unique id number;
+    const workoutElem = e.target.closest('.workout');
+
+    if (!workoutElem) return;
+
+    const workout = this.#workouts.find(
+      work => work.id === workoutElem.dataset.id
+    );
+
+    this.#map.setView(workout.coords, this.#mapZoomNumber, {
+      animate: true,
+      pan: {
+        duration: 1,
+      },
+    });
+  }
+
+  // setting local storage using API:
+  _setLocalStorage() {
+    localStorage.setItem('workouts', JSON.stringify(this.#workouts));
+  }
+
+  // getting data from the local storage to render it in UI:
+
+  _getLocalStorage() {
+    const storageData = JSON.parse(localStorage.getItem('workouts'));
+    console.log(storageData);
+
+    if (!storageData) return;
+    this.#workouts = data;
   }
 }
 
