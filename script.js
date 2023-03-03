@@ -113,6 +113,9 @@ class App {
 
     // handling clicks on map:
     this.#map.on('click', this._showForm.bind(this));
+
+    // loading pop-ups of stored workouts from local storage - after map is being downloaded:
+    this.#workouts.forEach(work => this._renderWorkoutMarker(work));
   }
 
   _showForm(mapE) {
@@ -297,7 +300,9 @@ class App {
     console.log(storageData);
 
     if (!storageData) return;
-    this.#workouts = data;
+    this.#workouts = storageData;
+
+    this.#workouts.forEach(work => this._renderWorkout(work));
   }
 }
 
